@@ -10,12 +10,12 @@ DEAD_COLOR = (0, 0, 0)  # Colour of dead cells in pygame screen
 SCREEN_SIZE_X = 600  # Pygame screen
 SCREEN_SIZE_Y = 600  # Pygame screen
 TICK = 60  # Pygame clock tick
-LOGGING_LEVEL = "WARNING"
+LOGGING_LEVEL = "INFO"
 DEFAULT_LOGGING = {
     "version": 1,
     "formatters": {
         "standard": {
-            "format": "%(asctime)s %(levelname)s: %(message)s",
+            "format": "%(name)s %(asctime)s %(levelname)s: %(message)s",
             "datefmt": "%Y-%m-%d - %H:%M:%S",
         },
     },
