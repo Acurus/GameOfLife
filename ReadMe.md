@@ -1,6 +1,6 @@
 # Game of ~~Thrones~~ Life
  Was bored an evening, and decided to try out this classic.
-requirements.txt
+
 ## To run: 
 `pip install -r requirements.txt`
 
