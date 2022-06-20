@@ -1,13 +1,12 @@
 import logging
 import logging.config
 import sys
-from turtle import screensize
+
 import pygame
-from time import sleep
-import copy
 
 
-def setup_logger():
+def setup_logger() -> logging.Logger:
+    """Setup logger"""
     DEFAULT_LOGGING = {
         "version": 1,
         "formatters": {
@@ -33,7 +32,7 @@ def setup_logger():
         },
         "loggers": {
             __name__: {
-                "level": "INFO",
+                "level": "ERROR",
                 "handlers": ["console", "file"],
                 "propagate": False,
             },
@@ -46,13 +45,23 @@ def setup_logger():
 
 
 class Board:
-    def __init__(self, boardfilename: str = None):
+    def __init__(self, boardfilename: str) -> None:
+        """Initialize the Board
+
+        Args:
+            boardfilename (str): File with starting pattern.
+        """
         self.boardfilename = boardfilename
         self.values = self._initialize()
         self.size = (len(self.values[0]), len(self.values))
         logger.info(f"Initialized board with size: {self.size}")
 
-    def _initialize(self):
+    def _initialize(self) -> list:
+        """Builds the board values from provided file
+
+        Returns:
+            list: 2D list of board values
+        """
         board_values = []
         if self.boardfilename:
             logger.debug(f"Initializing board from file: {self.boardfilename}")
@@ -64,10 +73,27 @@ class Board:
         else:
             return None
 
-    def state_of_cell(self, row: int, column: int):
+    def state_of_cell(self, row: int, column: int) -> int:
+        """Get the state of a cell at provided coordinates
+
+        Args:
+            row (int):
+            column (int):
+
+        Returns:
+            int: Returns 0 or 1
+        """
         return self.values[row][column]
 
-    def next_state_of_cell(self, cell: tuple):
+    def next_state_of_cell(self, cell: tuple) -> int:
+        """Finds state of a cell for the next generation
+
+        Args:
+            cell (tuple): tuple of (row, column)
+
+        Returns:
+            int: Returns 0 or 1
+        """
 
         neighbour_values = self._neighbours_of_cell(cell)
         cell_value = self.state_of_cell(cell[0], cell[1])
@@ -80,10 +106,15 @@ class Board:
         else:
             return 0
 
-    def load_from_file(self):
-        pass
-
     def _neighbours_of_cell(self, cell: tuple) -> list:
+        """Returns the neighbours of a cell at given coordinates
+
+        Args:
+            cell (tuple): tuple of (row, column)
+
+        Returns:
+            list: list of neighbours. Lenght 8
+        """
         neighbours = []
         for row_addition in range(-1, 2):
             for column_addition in range(-1, 2):
@@ -105,7 +136,13 @@ class Board:
 
 
 class Game:
-    def __init__(self, board_filename: str = None, rounds_to_simulate: int = 5):
+    def __init__(self, board_filename: str, rounds_to_simulate: int = 5) -> None:
+        """Initialize the game
+
+        Args:
+            board_filename (str): File with initial board values.
+            rounds_to_simulate (int, optional): How many rounds to simulate. Defaults to 5.
+        """
         pygame.init()
         self.clock = pygame.time.Clock()
         self.screensize_x = 600
@@ -117,21 +154,25 @@ class Game:
         self.board = Board(board_filename)
         self.round = 0
 
-    def run(self):
+    def run(self) -> None:
+        """Method for starting the simulation"""
         self.output_board()
         for round in range(self.rounds_to_simulate):
             self.round = round
             self.board.values = self.simulate_next_round()
-            self.output_board()
+        self.output_board()
         input("Press enter to exit")
 
-    def simulate_next_round(self):
+    def simulate_next_round(self) -> Board:
+        """Simulates a new generation
+
+        Returns:
+            Board: The board state after the simulation
+        """
         logger.debug(f"Simulating round {self.round}")
         new_board = [[0] * self.board.size[0] for i in range(self.board.size[1])]
         for row in range(self.board.size[0]):
             for column in range(self.board.size[1]):
-                if row == 3 and column == 4:
-                    print("Debug!")
                 new_board[row][column] = self.board.next_state_of_cell((row, column))
                 logger.debug(
                     f"row{row} column{column} changed: { self.board.values[row][column] != new_board[row][column]}"
@@ -139,7 +180,8 @@ class Game:
         logger.info(f"simulated round: {self.round}")
         return new_board
 
-    def output_board(self):
+    def output_board(self) -> None:
+        """Displays the board at it's current state"""
         block_size = self.screensize_x / game.board.size[1] * 2
         circle_size = block_size / game.board.size[1] > 2 or 2
         alive_colour = pygame.Color(0, 255, 0)
