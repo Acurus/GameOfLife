@@ -16,6 +16,7 @@ class Board:
         self.boardfilename = boardfilename
         self.values = self._initialize()
         self.size = (len(self.values[0]), len(self.values))
+        self.cells_to_check_next = self.cells_to_check_first_round()
         logger.info(f"Initialized board with size: {self.size}")
 
     def _initialize(self) -> list:
@@ -57,27 +58,40 @@ class Board:
             int: Returns 0 or 1
         """
 
-        neighbour_values = self._neighbours_of_cell(cell)
+        neighbours = self._neighbours_of_cell(cell)
+        neighbour_values = neighbours.values()
         cell_value = self.state_of_cell(cell[0], cell[1])
+
         if cell_value == 1 and (
             sum(neighbour_values) == 2 or sum(neighbour_values) == 3
         ):
-            return 1
+            new_cell_value = 1
+            self.cells_to_check_next.add(cell)
+            self.cells_to_check_next.update(neighbours.keys())
         elif cell_value == 0 and sum(neighbour_values) == 3:
-            return 1
-        else:
-            return 0
+            new_cell_value = 1
+            self.cells_to_check_next.add(cell)
+            self.cells_to_check_next.update(neighbours.keys())
 
-    def _neighbours_of_cell(self, cell: tuple) -> list:
+        else:
+            new_cell_value = 0
+
+        if new_cell_value != cell_value:
+            self.cells_to_check_next.add(cell)
+            self.cells_to_check_next.update(neighbours.keys())
+
+        return new_cell_value
+
+    def _neighbours_of_cell(self, cell: tuple) -> dict:
         """Returns the neighbours of a cell at given coordinates
 
         Args:
             cell (tuple): tuple of (row, column)
 
         Returns:
-            list: list of neighbours. Lenght 8
+            dict: dict of neighbours. {(row, column):0}
         """
-        neighbours = []
+        neighbours = {}
         for row_addition in range(-1, 2):
             for column_addition in range(-1, 2):
                 if not (row_addition == 0 and column_addition == 0):
@@ -91,7 +105,21 @@ class Board:
                     else:
                         neighbour_row = cell[0] + row_addition
 
-                    neighbours.append(
-                        self.state_of_cell(neighbour_row, neighbour_column)
+                    neighbours[neighbour_row, neighbour_column] = self.state_of_cell(
+                        neighbour_row, neighbour_column
                     )
+
         return neighbours
+
+    def cells_to_check_first_round(self) -> set:
+        """Generate cell tuples for initial check
+
+        Returns:
+            list: _description_
+        """
+        cells_to_check = set()
+        for row in range(self.size[0]):
+            for column in range(self.size[1]):
+                cells_to_check.add((row, column))
+
+        return cells_to_check

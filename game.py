@@ -3,6 +3,7 @@ import logging.config
 import pygame
 from board import Board
 import config
+import copy
 
 logging.config.dictConfig(config.DEFAULT_LOGGING)
 logger = logging.getLogger(__name__)
@@ -43,12 +44,16 @@ class Game:
         """
         logger.debug(f"Simulating round {self.round}")
         new_board = [[0] * self.board.size[0] for i in range(self.board.size[1])]
-        for row in range(self.board.size[0]):
-            for column in range(self.board.size[1]):
-                new_board[row][column] = self.board.next_state_of_cell((row, column))
-                logger.debug(
-                    f"row{row} column{column} changed: { self.board.values[row][column] != new_board[row][column]}"
-                )
+        cells_to_check = copy.deepcopy(self.board.cells_to_check_next)
+        logger.info(f"Checking {len(cells_to_check)} cells")
+        self.board.cells_to_check_next = set()
+
+        for cell in cells_to_check:
+            row = cell[0]
+            column = cell[1]
+            new_board[row][column] = self.board.next_state_of_cell((row, column))
+
+        cells_to_check = []
         logger.info(f"simulated round: {self.round}")
         return new_board
 
@@ -58,15 +63,21 @@ class Game:
         circle_size = block_size / self.board.size[1] > 2 or 2
 
         self.clock.tick(config.TICK)
-        for i in range(self.board.size[0]):
-            for j in range(self.board.size[1]):
-                if self.board.state_of_cell(i, j):
+        for row in range(self.board.size[0]):
+            for column in range(self.board.size[1]):
+
+                if self.board.state_of_cell(row, column):
                     colour = pygame.Color(config.ALIVE_COLOUR)
+                elif (
+                    config.DISPLAY_CELLS_CHECKED
+                    and ((row, column)) in self.board.cells_to_check_next
+                ):
+                    colour = pygame.Color(config.DISPLAY_CELLS_CHECKED_COLOUR)
                 else:
                     colour = pygame.Color(config.DEAD_COLOR)
                 center_point = (
-                    (j * (block_size / 2)),
-                    (i * (block_size / 2)),
+                    (column * (block_size / 2)),
+                    (row * (block_size / 2)),
                 )
                 pygame.draw.circle(self.screen, colour, center_point, circle_size, 0)
         pygame.display.flip()

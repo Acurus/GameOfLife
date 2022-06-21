@@ -21,5 +21,5 @@ An n by n grid of 0's and 1's. Ie:
 00000
 ```
 
-# TODO
-Make it not check every damn cell on each run
+TODO: 
+Improve display
