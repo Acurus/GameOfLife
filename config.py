@@ -9,8 +9,10 @@ ALIVE_COLOUR = (0, 255, 0)  # Colour of alive cells in pygame screen
 DEAD_COLOR = (0, 0, 0)  # Colour of dead cells in pygame screen
 SCREEN_SIZE_X = 600  # Pygame screen
 SCREEN_SIZE_Y = 600  # Pygame screen
-TICK = 60  # Pygame clock tick
+TICK = 30  # Pygame clock tick
 LOGGING_LEVEL = "INFO"
+DISPLAY_CELLS_CHECKED = False
+DISPLAY_CELLS_CHECKED_COLOUR = (0, 0, 255)
 DEFAULT_LOGGING = {
     "version": 1,
     "formatters": {
