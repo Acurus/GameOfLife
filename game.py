@@ -5,6 +5,8 @@ from board import Board
 import config
 import copy
 
+from screen import Screen
+
 logging.config.dictConfig(config.DEFAULT_LOGGING)
 logger = logging.getLogger(__name__)
 
@@ -17,24 +19,19 @@ class Game:
             board_filename (str): File with initial board values.
             rounds_to_simulate (int, optional): How many rounds to simulate. Defaults to 5.
         """
-        pygame.init()
-        self.clock = pygame.time.Clock()
-        self.screensize_x = config.SCREEN_SIZE_X
-        self.screensize_y = config.SCREEN_SIZE_Y
-        self.screen = pygame.display.set_mode(
-            (self.screensize_x, self.screensize_y), 0, 24
-        )
-        self.rounds_to_simulate = rounds_to_simulate
         self.board = Board(board_filename)
+        self.screen = Screen(config.SCREEN_SIZE_X, config.SCREEN_SIZE_Y)
+        self.rounds_to_simulate = rounds_to_simulate
+
         self.round = 0
 
     def run(self) -> None:
         """Method for starting the simulation"""
-        self.output_board()
+        self.screen.output_board(self.board)
         for round in range(self.rounds_to_simulate):
             self.round = round
             self.board.values = self.simulate_next_round()
-            self.output_board()
+            self.screen.output_board(self.board)
 
     def simulate_next_round(self) -> Board:
         """Simulates a new generation
@@ -56,28 +53,3 @@ class Game:
         cells_to_check = []
         logger.info(f"simulated round: {self.round}")
         return new_board
-
-    def output_board(self) -> None:
-        """Displays the board at it's current state"""
-        block_size = self.screensize_x / self.board.size[1] * 2
-        circle_size = block_size / self.board.size[1] > 2 or 2
-
-        self.clock.tick(config.TICK)
-        for row in range(self.board.size[0]):
-            for column in range(self.board.size[1]):
-
-                if self.board.state_of_cell(row, column):
-                    colour = pygame.Color(config.ALIVE_COLOUR)
-                elif (
-                    config.DISPLAY_CELLS_CHECKED
-                    and ((row, column)) in self.board.cells_to_check_next
-                ):
-                    colour = pygame.Color(config.DISPLAY_CELLS_CHECKED_COLOUR)
-                else:
-                    colour = pygame.Color(config.DEAD_COLOR)
-                center_point = (
-                    (column * (block_size / 2)),
-                    (row * (block_size / 2)),
-                )
-                pygame.draw.circle(self.screen, colour, center_point, circle_size, 0)
-        pygame.display.flip()
