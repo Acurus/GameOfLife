@@ -1,5 +1,6 @@
 import logging
 import logging.config
+from multiprocessing.sharedctypes import Value
 import config
 
 logging.config.dictConfig(config.DEFAULT_LOGGING)
@@ -46,6 +47,12 @@ class Board:
         Returns:
             int: Returns 0 or 1
         """
+        if row > len(self.values[0]) or column > len(self.values[1]):
+            logger.error("Row or Column out of bounds! row: {row}  column: {column}")
+            raise IndexError(
+                f"Row or Column out of bounds! row: {row}  column: {column}"
+            )
+
         return self.values[row][column]
 
     def next_state_of_cell(self, cell: tuple) -> int:
@@ -92,16 +99,21 @@ class Board:
             dict: dict of neighbours. {(row, column):0}
         """
         neighbours = {}
+
         for row_addition in range(-1, 2):
             for column_addition in range(-1, 2):
                 if not (row_addition == 0 and column_addition == 0):
                     if cell[1] + column_addition > self.size[1] - 1:
                         neighbour_column = column_addition - self.size[1]
+                    elif cell[1] + column_addition < -1 * self.size[1]:
+                        neighbour_column = column_addition
                     else:
                         neighbour_column = cell[1] + column_addition
 
                     if cell[0] + row_addition > self.size[0] - 1:
                         neighbour_row = row_addition - self.size[0]
+                    elif cell[0] + row_addition < -1 * self.size[0]:
+                        neighbour_row = row_addition
                     else:
                         neighbour_row = cell[0] + row_addition
 
