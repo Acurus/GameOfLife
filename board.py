@@ -1,6 +1,5 @@
 import logging
 import logging.config
-from multiprocessing.sharedctypes import Value
 import config
 
 logging.config.dictConfig(config.DEFAULT_LOGGING)
