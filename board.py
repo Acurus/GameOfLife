@@ -1,13 +1,15 @@
 import logging
 import logging.config
 import config
+from PIL import Image
+from pathlib import Path
 
 logging.config.dictConfig(config.DEFAULT_LOGGING)
 logger = logging.getLogger(__name__)
 
 
 class Board:
-    def __init__(self, boardfilename: str) -> None:
+    def __init__(self, boardfilename: Path) -> None:
         """Initialize the Board
 
         Args:
@@ -25,15 +27,15 @@ class Board:
         Returns:
             list: 2D list of board values
         """
-        board_values = []
-        if self.boardfilename:
-            logger.debug(f"Initializing board from file: {self.boardfilename}")
-            with open(self.boardfilename, "r") as f:
-                for line in f:
-                    row_values = [int(x) for x in line.strip()]
-                    board_values.append(row_values)
-            return board_values
+
+        if self.boardfilename.suffix == ".txt":
+            return self._board_from_txt()
+
+        elif self.boardfilename.suffix == ".tif":
+            return self._board_from_tif()
+
         else:
+            logger.error(f"Filetype not supported")
             return None
 
     def state_of_cell(self, row: int, column: int) -> int:
@@ -47,7 +49,8 @@ class Board:
             int: Returns 0 or 1
         """
         if row > len(self.values[0]) or column > len(self.values[1]):
-            logger.error("Row or Column out of bounds! row: {row}  column: {column}")
+            logger.error(
+                "Row or Column out of bounds! row: {row}  column: {column}")
             raise IndexError(
                 f"Row or Column out of bounds! row: {row}  column: {column}"
             )
@@ -134,3 +137,31 @@ class Board:
                 cells_to_check.add((row, column))
 
         return cells_to_check
+
+    def _board_from_txt(self):
+        board_values = []
+        logger.debug(
+            f"Initializing board from text file: {self.boardfilename}")
+        with open(self.boardfilename, "r") as f:
+            for line in f:
+                row_values = [int(x) for x in line.strip()]
+                board_values.append(row_values)
+        return board_values
+
+    def _board_from_tif(self):
+        board_values = []
+        logger.debug(
+            f"Initializing board from tiff file: {self.boardfilename}")
+        im = Image.open(self.boardfilename).convert("L")
+        rows, columns = im.size
+        pixels = list(im.getdata())
+        counter = 0
+        for row in range(rows):
+            board_values.append([])
+            for _ in range(columns):
+                if pixels[counter] == 255:
+                    board_values[row].append(0)
+                else:
+                    board_values[row].append(1)
+                counter += 1
+        return board_values

@@ -1,5 +1,6 @@
 import logging
 from logging.config import dictConfig
+from pathlib import Path
 import config
 
 from game import Game
@@ -7,7 +8,7 @@ from game import Game
 
 def main():
     logger.info("Starting")
-    game = Game(config.BOARD_FILENAME, config.ROUNDS_TO_SIMULATE)
+    game = Game(Path(config.BOARD_FILENAME), config.ROUNDS_TO_SIMULATE)
     game.run()
     logger.info("Finished")
     # input("Press enter to exit")

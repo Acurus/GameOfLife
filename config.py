@@ -1,6 +1,6 @@
 import sys
 
-BOARD_FILENAME = "boards/board60x60_2.txt"
+BOARD_FILENAME = "boards/life.tif"
 LOG_FILENAME = "logfile.log"
 
 ROUNDS_TO_SIMULATE = 250  # How many rounds to simulate
@@ -25,7 +25,7 @@ DEFAULT_LOGGING = {
         "console": {
             "class": "logging.StreamHandler",
             "formatter": "standard",
-            "level": LOGGING_LEVEL,
+            "level": "WARNING",
             "stream": sys.stdout,
         },
         "file": {
