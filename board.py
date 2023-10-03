@@ -17,9 +17,10 @@ class Board:
         """
         self.boardfilename = boardfilename
         self.values = self._initialize()
-        self.size = (len(self.values[0]), len(self.values))
+        self.number_of_rows = len(self.values)
+        self.number_of_columns = len(self.values[0])
         self.cells_to_check_next = self.cells_to_check_first_round()
-        logger.info(f"Initialized board with size: {self.size}")
+        logger.info(f"Initialized board with size: {self.number_of_rows} x {self.number_of_columns}")
 
     def _initialize(self) -> list:
         """Builds the board values from provided file
@@ -48,7 +49,7 @@ class Board:
         Returns:
             int: Returns 0 or 1
         """
-        if row > len(self.values[0]) or column > len(self.values[1]):
+        if row >= self.number_of_rows or column >= self.number_of_columns:
             logger.error(
                 "Row or Column out of bounds! row: {row}  column: {column}")
             raise IndexError(
@@ -105,16 +106,16 @@ class Board:
         for row_addition in range(-1, 2):
             for column_addition in range(-1, 2):
                 if not (row_addition == 0 and column_addition == 0):
-                    if cell[1] + column_addition > self.size[1] - 1:
-                        neighbour_column = column_addition - self.size[1]
-                    elif cell[1] + column_addition < -1 * self.size[1]:
+                    if cell[1] + column_addition > self.number_of_columns - 1:
+                        neighbour_column = column_addition - self.number_of_columns
+                    elif cell[1] + column_addition < -1 * self.number_of_columns:
                         neighbour_column = column_addition
                     else:
                         neighbour_column = cell[1] + column_addition
 
-                    if cell[0] + row_addition > self.size[0] - 1:
-                        neighbour_row = row_addition - self.size[0]
-                    elif cell[0] + row_addition < -1 * self.size[0]:
+                    if cell[0] + row_addition > self.number_of_rows - 1:
+                        neighbour_row = row_addition - self.number_of_rows
+                    elif cell[0] + row_addition < -1 * self.number_of_rows:
                         neighbour_row = row_addition
                     else:
                         neighbour_row = cell[0] + row_addition
@@ -132,8 +133,8 @@ class Board:
             list: _description_
         """
         cells_to_check = set()
-        for row in range(self.size[0]):
-            for column in range(self.size[1]):
+        for row in range(self.number_of_rows):
+            for column in range(self.number_of_columns):
                 cells_to_check.add((row, column))
 
         return cells_to_check

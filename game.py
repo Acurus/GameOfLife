@@ -43,7 +43,7 @@ class Game:
             Board: The board state after the simulation
         """
         logger.debug(f"Simulating round {self.round}")
-        new_board = [[0] * self.board.size[0] for i in range(self.board.size[1])]
+        new_board = [[0] * self.board.number_of_columns for i in range(self.board.number_of_rows)]
         cells_to_check = copy.deepcopy(self.board.cells_to_check_next)
         logger.info(f"Checking {len(cells_to_check)} cells")
         self.board.cells_to_check_next = set()
@@ -59,13 +59,13 @@ class Game:
 
     def output_board(self) -> None:
         """Displays the board at it's current state"""
-        block_size = self.screensize_x / self.board.size[1] * 2
-        circle_size = block_size / self.board.size[1] > 2 or 2
+        largest_side = max([self.board.number_of_rows, self.board.number_of_columns])
+        block_size = self.screensize_x / largest_side * 2
+        circle_size = block_size / largest_side > 2 or 2
 
         self.clock.tick(config.TICK)
-        for row in range(self.board.size[0]):
-            for column in range(self.board.size[1]):
-
+        for row in range(self.board.number_of_rows):
+            for column in range(self.board.number_of_columns):
                 if self.board.state_of_cell(row, column):
                     colour = pygame.Color(config.ALIVE_COLOUR)
                 elif (
